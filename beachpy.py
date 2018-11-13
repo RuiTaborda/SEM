@@ -2,7 +2,7 @@
 """
 Created on Fri Oct 19 09:21:55 2018
 
-@author: rui
+@author: rui taborda
 """
 from shapely import geometry
 import sys
