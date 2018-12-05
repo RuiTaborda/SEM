@@ -2,7 +2,7 @@
 """
 Created on Fri Oct 19 09:21:55 2018
 
-@author: rui taborda - FCUL/IDL
+@author: rui taborda
 """
 from shapely import geometry
 import sys
@@ -14,23 +14,21 @@ class BeachProfile:
 # =============================================================================
     x_coastline = 0 # beach origin - constant
     
-    
 # =============================================================================
 #     Sandy profile default parameters
 # =============================================================================
 
     empty_profile = False    # True if there is no sand in the beach
-    y_sandy_coastline= 5 #if berm_slope = 0, this corresponds to berm height
-    p_sandy_coastline = geometry.Point(x_coastline, y_sandy_coastline)
+    y_sandy_coastline= 3.7 #if berm_slope = 0, this corresponds to berm height
+    
     
     # equilibrium height of sandy coastline
-    p_equilibrium_sandy_coastline =  p_sandy_coastline
-
+    
     berm_width = False
     berm_slope = 0.01
    
     x_beachface_toe = False
-    beachface_slope = 0.1
+    beachface_slope = 0.11
     
     target_volume = False
     secant_iterations = False
@@ -38,29 +36,21 @@ class BeachProfile:
   # =============================================================================
 #     Rocky profile default parameters
 # =============================================================================
-    y_rocky_coastline= 2.
+    y_rocky_coastline= 0.
     platform_slope = 0.01
-    
-    p_rocky_coastline = geometry.Point(x_coastline, y_rocky_coastline)
-    
-    
+     
 # =============================================================================
 #     Domain parameters
 # =============================================================================
     y_resolution = 1.
     
-    upper_bound = y_sandy_coastline + 5
-    #lower_bound = z_closure_depth
-    lower_bound = 0
-    left_bound = x_coastline
-    right_bound = 300.
+    upper_bound = 10
+    lower_bound = -2
+    left_bound = 0
+    right_bound = 300
+       
     
-    p_lower_left_bound = geometry.Point(left_bound, lower_bound)
-    p_lower_right_bound = geometry.Point(right_bound, lower_bound)
-    
-    domain_bounds = (left_bound, right_bound, lower_bound, upper_bound)
-    
-    
+     
     sand_color = (0.7, 0.7, 0.5)    
     platform_color = (0.3, 0.3, 0.3)    
     
@@ -69,6 +59,17 @@ class BeachProfile:
         for key, value in kwargs.items():
             setattr(self, key, value)
   
+        self.p_sandy_coastline = geometry.Point(self.x_coastline, self.y_sandy_coastline)
+        self.p_equilibrium_sandy_coastline =  self.p_sandy_coastline
+        self.p_rocky_coastline = geometry.Point(self.x_coastline, self.y_rocky_coastline)
+    
+ 
+        self.p_lower_left_bound = geometry.Point(self.left_bound, self.lower_bound)
+        self.p_lower_right_bound = geometry.Point(self.right_bound, self.lower_bound)
+    
+        self.domain_bounds = (self.left_bound, self.right_bound, self.lower_bound, self.upper_bound)
+    
+       
         self.build_rocky_profile()
         self.build_sandy_profile()
         
@@ -208,5 +209,4 @@ class BeachProfile:
             x, y = self.platform_polygon.exterior.xy
             plt.fill(x, y, color = self.platform_color) 
                    
-        plt.show()
         plt.axis(self.domain_bounds)
