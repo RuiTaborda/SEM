@@ -25,7 +25,7 @@ class BeachProfile:
     # equilibrium height of sandy coastline
     
     berm_width = False
-    berm_slope = 0.01
+    berm_slope = 0.001
    
     x_beachface_toe = False
     beachface_slope = 0.11
@@ -33,10 +33,10 @@ class BeachProfile:
     target_volume = False
     secant_iterations = False
     max_secant_iter = 10
-  # =============================================================================
+# =============================================================================
 #     Rocky profile default parameters
 # =============================================================================
-    y_rocky_coastline= 0.
+    y_rocky_coastline= -1.
     platform_slope = 0.01
      
 # =============================================================================
@@ -45,9 +45,9 @@ class BeachProfile:
     y_resolution = 1.
     
     upper_bound = 10
-    lower_bound = -2
+    lower_bound = -10
     left_bound = 0
-    right_bound = 300
+    right_bound = 1000
        
     
      
@@ -184,7 +184,7 @@ class BeachProfile:
         # Here, either a solution is found, or too many iterations
         if abs(f_x1) > eps:
             iteration_counter = -1
-        print(iteration_counter)
+#        print(iteration_counter)
         return x, iteration_counter
 
     def f(self, x):
@@ -210,3 +210,4 @@ class BeachProfile:
             plt.fill(x, y, color = self.platform_color) 
                    
         plt.axis(self.domain_bounds)
+        
