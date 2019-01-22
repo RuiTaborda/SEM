@@ -21,25 +21,40 @@ class SEM_Line:
     y = []
     xc = []
     yc = []
-    boundary_point_spec = 'om'
-    boundary_point_marker_size = 5
-    
-    mid_point_spec = '+r'
-    mid_point_marker_size = 10
-    
-    original_line_color = []
-    original_line_plot = True
-    
-    transects_color = 'green'
-    transects_plot = True
-    
     
     filename = []
     
-    def __init__(self, **kwargs):
+    shp_plot = False
+    shp_color = 'black'
+    shp_markersize = 5
+    shp_marker = 'x'
+    shp_linestyle = '--'
+    shp_linewidth = 0.5
+    shp_markeredgecolor = 'black'
+    
+    
+    xc_plot = False
+    xc_color = 'blue'
+    xc_markersize = 3
+    xc_marker = 'x'
+    xc_linestyle = '-'
+    xc_linewidth = 1
+    xc_markeredgecolor = 'red'
+    
+    x_plot = False
+    x_color = 'blue'
+    x_markersize = 3
+    x_marker = 'o'
+    x_linestyle = '-'
+    x_linewidth = 1
+    x_markeredgecolor = 'black'
+    
+    
+    
+    def __init__(self,  **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
- 
+        
         if self.filename == []:
             return
         try:
@@ -98,22 +113,51 @@ class SEM_Line:
         yc = self.yc + dist * np.sin(self.trans_dir) 
         return xc, yc
 
-class SEM_Grid:
-    filename_baseline = 'baseline.shp' # shapefile filename
-    filename_coastline = 'coastline.shp' 
-    filename_beach_toe = 'beach_toe.shp'
+    def plot_shp(self):
+        xy = self.original_line.geometry[0].coords.xy
+        
+        plt.plot(xy[0], xy[1], color = self.shp_color, markersize = self.shp_markersize, 
+                 marker = self.shp_marker, markeredgecolor = self.shp_markeredgecolor, linestyle = self.shp_linestyle, linewidth = self.shp_linewidth)
 
+    def plot_x(self):
+        plt.plot(self.x, self.y, color = self.x_color, markersize = self.x_markersize, 
+                 marker = self.x_marker, markeredgecolor = self.x_markeredgecolor, linestyle = self.x_linestyle, linewidth = self.x_linewidth)
+        
+    def plot_xc(self):
+        plt.plot(self.xc, self.yc, color = self.xc_color, markersize = self.xc_markersize, 
+                 marker = self.xc_marker, markeredgecolor = self.xc_markeredgecolor, linestyle = self.xc_linestyle, linewidth = self.xc_linewidth)
+ 
+    def plot(self):
+        if self.shp_plot:
+            self.plot_shp()
+        if self.xc_plot:
+            self.plot_xc()
+        if self.x_plot:
+            self.plot_x()
+            
+class SEM_Grid:
+    
+    # =============================================================================
+    # Plot definitions
+    # =============================================================================
+    
+    
+    cell_annotation = True
+    transect_plot = True
+    transect_color = 'green'
+    transect_length = 1000
+    
+    beachface_plot = True
+    beachberm_plot = True
+  
+    
     beach_profile = []
     
     left_boundary = 'open'
     right_boundary = 'open'
     
     dt = 60 * 60 
-    
-    shoreline = SEM_Line()
     dx = 500   
-    transect_length = 1000
-    
     nearshore_depth = 10
     K = 0.39
     
@@ -127,9 +171,10 @@ class SEM_Grid:
         for key, value in kwargs.items():
             setattr(self, key, value)
  
-        self.baseline = SEM_Line(filename = self.filename_baseline, original_line_plot = True, boundary_point_spec = 'om', original_line_color = 'green')
-        self.coastline = SEM_Line(filename = self.filename_coastline, original_line_plot = True, boundary_point_spec = 'om', original_line_color = 'red')
-        self.beach_toe = SEM_Line(filename = self.filename_beach_toe, original_line_plot = True, boundary_point_spec = 'xm', original_line_color = 'blue')
+        self.shoreline = SEM_Line(**self.opt_shoreline)
+        self.baseline = SEM_Line(**self.opt_baseline)
+        self.coastline = SEM_Line(**self.opt_coastline)
+        self.beach_toe = SEM_Line(**self.opt_beach_toe)
         self.create_computational_grid()
     
     
@@ -212,13 +257,19 @@ class SEM_Grid:
             
         return Q
         
-    def beach_volume(self):
+    def profile_volume(self):
        return  np.array([profile.volume() for profile in self.beach_profile]) 
+   
+    def beach_volume(self):
+        dx = self.baseline.cell_lenght().flatten()
+        vol = self.profile_volume()
+        return np.sum(dx * vol)
     
     def Q_net(self):
-        return self.q_net(self.Q_potential(), self.beach_volume())
-
-    def nextstep(self):
+        return self.q_net(self.Q_potential(), self.profile_volume())
+    
+    def nextstep(self, offshore_wave):
+        self.propagate_waves(offshore_wave)
         Q = self.Q_net()
         dv_cell = np.diff(Q) 
         dv_profile = dv_cell / self.baseline.cell_lenght().flatten() 
@@ -290,40 +341,39 @@ class SEM_Grid:
 
     
     def plot(self):
-        fig, ax = plt.subplots()
-        if self.baseline.original_line_plot:
-            self.baseline.original_line.plot(ax=ax, color = self.baseline.original_line_color)
-    
-        plt.plot(self.baseline.x, self.baseline.y, self.baseline.boundary_point_spec, markersize = self.baseline.boundary_point_marker_size)
-        plt.plot(self.baseline.xc, self.baseline.yc, self.baseline.mid_point_spec, markersize = self.baseline.mid_point_marker_size)
         
-        for i, x, y in zip(range(self.baseline.xc.size), self.baseline.xc, self.baseline.yc):         
-            ax.annotate('%s' %i, xy=(x,y), xytext=(5,0), textcoords='offset points')
-    
-        if self.baseline.transects_plot:
-            self.baseline.transects.plot(ax=ax, color = self.baseline.transects_color)
-     
-    
-        if self.coastline.original_line_plot:
-            self.coastline.original_line.plot(ax=ax, color = self.coastline.original_line_color)
+        self.compute_shoreline_from_profiles()
+       
+        self.baseline.plot()
+        self.shoreline.plot()
+        self.coastline.plot()
+        self.beach_toe.plot()
+        
+        if self.beachface_plot:
+            x = np.concatenate([self.beach_toe.xc.flatten(), self.shoreline.xc[::-1].flatten()])
+            y = np.concatenate([self.beach_toe.yc.flatten(), self.shoreline.yc[::-1].flatten()])
+            plt.fill(x, y, color = 'gold') #color names from https://matplotlib.org/examples/color/named_colors.html
+        
+        if self.beachberm_plot:
+            x = np.concatenate([self.coastline.xc.flatten(), self.shoreline.xc[::-1].flatten()])
+            y = np.concatenate([self.coastline.yc.flatten(), self.shoreline.yc[::-1].flatten()])
+            plt.fill(x, y, color = 'sandybrown') 
             
-        if self.beach_toe.original_line_plot:
-            self.beach_toe.original_line.plot(ax=ax, color = self.beach_toe.original_line_color)
-     
+        ax = plt.gca()
+
+  
+        if self.transect_plot:
+            self.baseline.transects.plot(ax=ax, color = self.transect_color, linestyle = '--', linewidth = 0.5)
         
-        plt.plot(self.coastline.xc, self.coastline.yc, 'm', markersize = self.coastline.mid_point_marker_size)
-        plt.plot(self.beach_toe.xc, self.beach_toe.yc, 'k', markersize = self.beach_toe.mid_point_marker_size)
+        if self.cell_annotation:
+           for i, x, y in zip(range(self.baseline.xc.size), self.baseline.xc, self.baseline.yc):         
+              ax.annotate('%s' %i, xy=(x,y), xytext=(5,0), textcoords='offset points', fontsize = 8)
         
-        plt.plot(self.shoreline.xc, self.shoreline.yc, 'd', markersize = 5)
-        
-#        for i, x, y in zip(range(self.beach_toe.xc.size), self.beach_toe.xc, self.beach_toe.yc):         
-#            ax.annotate('%s' %i, xy=(x,y), xytext=(5,0), textcoords='offset points')
-#      
-#        for i, x, y in zip(range(self.coastline.xc.size), self.coastline.xc, self.coastline.yc):         
-#            ax.annotate('%s' %i, xy=(x,y), xytext=(5,0), textcoords='offset points')
         
         plt.axis('equal')
- 
+   
+    
+     
     def plot_waves(self):
         df = pandas.DataFrame({ 'H':     [wave.H for wave in self.breaking_waves],
                                'alpha': [wave.alpha() for wave in self.breaking_waves]})  
