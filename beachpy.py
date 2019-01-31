@@ -4,6 +4,7 @@ Created on Fri Oct 19 09:21:55 2018
 
 @author: rui taborda
 """
+from array import array
 from shapely import geometry
 import sys
 import matplotlib.pyplot as plt
@@ -25,7 +26,7 @@ class BeachProfile:
     # equilibrium height of sandy coastline
     
     berm_width = False
-    berm_slope = 0.001
+    berm_slope = 0.000
    
     x_beachface_toe = False
     beachface_slope = 0.11
@@ -44,15 +45,20 @@ class BeachProfile:
 # =============================================================================
     y_resolution = 1.
     
-    upper_bound = 10
-    lower_bound = -10
+    upper_bound = 7
+    lower_bound = -4
     left_bound = 0
-    right_bound = 1000
+    right_bound = 2000
        
+    no_ticks = False
     
+    plot_rocky_platform = True
+    plot_cliff = False
+    cliff = False
+    cliff_witdh = 50
      
-    sand_color = (0.7, 0.7, 0.5)    
-    platform_color = (0.3, 0.3, 0.3)    
+    sand_color = (194/255, 178/255, 128/255)    
+    platform_color = (0.4, 0.4, 0.4)    
     
 # =============================================================================
     def __init__(self, **kwargs):
@@ -63,7 +69,7 @@ class BeachProfile:
         self.p_equilibrium_sandy_coastline =  self.p_sandy_coastline
         self.p_rocky_coastline = geometry.Point(self.x_coastline, self.y_rocky_coastline)
     
- 
+        
         self.p_lower_left_bound = geometry.Point(self.left_bound, self.lower_bound)
         self.p_lower_right_bound = geometry.Point(self.right_bound, self.lower_bound)
     
@@ -99,7 +105,7 @@ class BeachProfile:
         self.sandy_profile = geometry.LineString([[p.x, p.y] for p in point_list])
         
 #        define beach sand polygon
-        point_list.append(geometry.Point(self.left_bound, self.p_rocky_coastline.y))
+        point_list.append(geometry.Point(self.x_coastline, self.p_rocky_coastline.y))
         self.sandy_polygon = geometry.Polygon([[p.x, p.y] for p in point_list])
         
         
@@ -122,7 +128,7 @@ class BeachProfile:
         self.sandy_profile = geometry.LineString([[p.x, p.y] for p in point_list])
         
 #       define beach sand polygon
-        point_list.append(geometry.Point(self.left_bound, self.p_rocky_coastline.y))
+        point_list.append(geometry.Point(self.x_coastline, self.p_rocky_coastline.y))
         self.sandy_polygon = geometry.Polygon([[p.x, p.y] for p in point_list])
     
     def build_sandy_profile_from_beachface_toe(self):
@@ -199,15 +205,41 @@ class BeachProfile:
 # =============================================================================
     
     def plot(self):
-        plt.figure()
         
         if self.sandy_polygon.area >0 :
             x, y = self.sandy_polygon.exterior.xy
             plt.fill(x, y, color = self.sand_color) 
         
-        if self.platform_polygon.area >0 :
+        if self.platform_polygon.area >0 and self.plot_rocky_platform:
             x, y = self.platform_polygon.exterior.xy
+            
+            if self.plot_cliff:
+                xc =  self.x_coastline
+                xcw = self.x_coastline - self.cliff_witdh
+                yc =   self.y_rocky_coastline
+                c_top = self.upper_bound
+                c_bot = self.lower_bound
+                x_cliff = array('d', [xc,   xc,   xcw,   xcw,   xc, xc])
+                y_cliff  = array('d',[yc, c_bot,  c_bot, c_top,  c_top, yc])
+                x = x_cliff + x
+                y = y_cliff + y
+             
             plt.fill(x, y, color = self.platform_color) 
                    
         plt.axis(self.domain_bounds)
+        
+        if self.no_ticks:
+            plt.tick_params(
+                axis='x',          # changes apply to the x-axis
+                which='both',      # both major and minor ticks are affected
+                bottom=False,      # ticks along the bottom edge are off
+                top=False,         # ticks along the top edge are off
+                labelbottom=False) # labels along the bottom edge are off
+            plt.tick_params(
+                axis='y',          # changes apply to the x-axis
+                which='both',      # both major and minor ticks are affected
+                left=False,      # ticks along the bottom edge are off
+                right=False,         # ticks along the top edge are off
+                labelleft=False) # labels along the bottom edge are off
+
         

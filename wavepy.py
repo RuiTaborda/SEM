@@ -31,10 +31,13 @@ class Wave:
         # You, Z. J. (2008). A close approximation of wave dispersion relation for direct calculation of wavelength in any coastal water depth. Applied Ocean Research, 30(2), 113-119.
         
         k0 = (2 * pi)**2 / (self.T**2 * g)
-        kh = k0 * self.h;
-        x0 = math.sqrt(kh) * (1 + 1/6 * kh + 1/30 * kh**2)        
-        k = x0 / self.h * ((k0 * self.h + (x0 / math.cosh(x0))**2) / (x0 * math.tanh(x0) + (x0 / math.cosh(x0))**2))        
-        return k
+        if self.h > pi / k0: # deep water conditions
+            return k0
+        else:
+            kh = k0 * self.h
+            x0 = math.sqrt(kh) * (1 + 1/6 * kh + 1/30 * kh**2)        
+            k = x0 / self.h * ((k0 * self.h + (x0 / math.cosh(x0))**2) / (x0 * math.tanh(x0) + (x0 / math.cosh(x0))**2))        
+            return k
         
     def Hs(self):
         if self.H_stat == 'Hs':
