@@ -46,9 +46,9 @@ class BeachProfile:
     y_resolution = 1.
     
     upper_bound = 7
-    lower_bound = -4
+    lower_bound = -10
     left_bound = 0
-    right_bound = 2000
+    right_bound = 400
        
     no_ticks = False
     

@@ -168,7 +168,7 @@ class SEMGrid:
     dx = 500
     
     lower_bound = -11
-    nearshore_depth = 2
+    nearshore_depth = 10
     K = 0.39
     
     platform_slope = 0.01
@@ -362,12 +362,12 @@ class SEMGrid:
         if self.beachface_plot:
             x = np.concatenate([self.beach_toe.xc.flatten(), self.shoreline.xc[::-1].flatten()])
             y = np.concatenate([self.beach_toe.yc.flatten(), self.shoreline.yc[::-1].flatten()])
-            plt.fill(x, y, color='gold')  # color names from https://matplotlib.org/examples/color/named_colors.html
+            plt.fill(x, y, color='lightgoldenrodyellow')  # color names from https://matplotlib.org/examples/color/named_colors.html
 
         if self.beachberm_plot:
             x = np.concatenate([self.coastline.xc.flatten(), self.shoreline.xc[::-1].flatten()])
             y = np.concatenate([self.coastline.yc.flatten(), self.shoreline.yc[::-1].flatten()])
-            plt.fill(x, y, color='sandybrown')
+            plt.fill(x, y, color='gold')
 
         ax = plt.gca()
 
