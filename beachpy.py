@@ -20,7 +20,7 @@ class BeachProfile:
 # =============================================================================
 
     empty_profile = False    # True if there is no sand in the beach
-    y_sandy_coastline= 3.7 #if berm_slope = 0, this corresponds to berm height
+    y_sandy_coastline= 4 #if berm_slope = 0, this corresponds to berm height
     
     
     # equilibrium height of sandy coastline
@@ -48,7 +48,7 @@ class BeachProfile:
     upper_bound = 7
     lower_bound = -10
     left_bound = 0
-    right_bound = 400
+    right_bound = 2000
        
     no_ticks = False
     
@@ -152,7 +152,14 @@ class BeachProfile:
             self.berm_width = 0
         else:
             self.p_sandy_coastline = self.p_equilibrium_sandy_coastline
-        
+     
+    def extract_contour(self, y):
+        hl_y = geometry.LineString([(self.left_bound, y), (self.right_bound, y)])
+        p_contour = self.sandy_profile.intersection(hl_y)
+        if p_contour.is_empty:
+            return 0
+        else:
+            return p_contour.x
 #        
     def volume(self):
         return self.sandy_polygon.area

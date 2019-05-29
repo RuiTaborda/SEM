@@ -28,6 +28,8 @@ class SEMLine:
     transects = None
     x_trans = None
     y_trans = None
+    
+    reverse = False # reverse line direction - only used for baseline definition
 
     num_cells = None
 
@@ -54,6 +56,16 @@ class SEMLine:
     x_linestyle = '-'
     x_linewidth = 1
     x_markeredgecolor = 'black'
+    
+    crs ={'proj': 'tmerc',
+         'lat_0': 39.66825833333333,
+         'lon_0': -8.133108333333334,
+         'k': 1,
+         'x_0': 0,
+         'y_0': 0,
+         'ellps': 'GRS80',
+         'units': 'm',
+         'no_defs': True}
 
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
@@ -63,6 +75,7 @@ class SEMLine:
             return
         try:
             self.original_line = gpd.read_file(self.filename)
+            self.crs = self.original_line.crs
         except IOError:
             print('An error occurred trying to read the file  -> ', self.filename)
 
@@ -77,7 +90,7 @@ class SEMLine:
         lines = []
         for xc, yc, x_trans, y_trans in zip(self.xc, self.yc, self.x_trans, self.y_trans):
             lines.append(geometry.LineString(((xc, yc), (x_trans, y_trans))))
-        self.transects = gpd.GeoDataFrame(crs=self.original_line.crs, geometry=lines)
+        self.transects = gpd.GeoDataFrame(crs=self.crs, geometry=lines)
 
     def normals_from_cell_boundaries(self):
         dx = self.x[1:] - self.x[:-1]
@@ -108,6 +121,10 @@ class SEMLine:
 
         self.x = np.array([p.x for p in points])
         self.y = np.array([p.y for p in points])
+
+        if self.reverse:
+            self.x = self.x[::-1]
+            self.y = self.y[::-1]
 
         self.compute_mid_cells()
         self.build_transects(transect_length)
@@ -141,6 +158,13 @@ class SEMLine:
             self.plot_xc()
         if self.x_plot:
             self.plot_x()
+            
+    def to_shape(self, filename):
+        lines = []
+        for xc, yc, in zip(self.xc, self.yc):
+            lines.append((xc, yc))
+        xc_linestring = gpd.GeoDataFrame(crs=self.crs, geometry= [geometry.LineString(lines)])
+        xc_linestring.to_file(driver = 'ESRI Shapefile', filename=filename)
 
 
 class SEMGrid:
@@ -154,7 +178,7 @@ class SEMGrid:
     cell_annotation = True
     transect_plot = True
     transect_color = 'green'
-    transect_length = 1000
+    transect_length = 2000
 
     beachface_plot = True
     beachberm_plot = True
@@ -168,15 +192,13 @@ class SEMGrid:
     dx = 500
     
     lower_bound = -11
-    nearshore_depth = 10
+    nearshore_depth = 5
     K = 0.39
     
-    platform_slope = 0.01
+    platform_slope = 0.0
     y_rocky_coastline = -1
     beachface_slope = 0.1
     
-    
-
     lineDir = False  # display line direction
 
     max_iter_qpot2qnet = 100  # maximum iterations used in transforming q potential in q net
@@ -229,6 +251,14 @@ class SEMGrid:
         self.beach_toe.xc, self.beach_toe.yc = self.baseline.xycoords_from_distance(
             dist_beachface_toe_to_coastline + dist_coastline_to_baseline)
 
+    def extract_contour_from_profiles(self, z = 0, opt_contour = {'xc_plot': True, 'xc_color': 'blue'}):
+        dist_contour_to_coastline = np.array([profile.extract_contour(z) for profile in self.beach_profile])
+        dist_contour_to_coastline.resize(dist_contour_to_coastline.size, 1)  # put in a compatible format
+        dist_coastline_to_baseline = self.dist(self.coastline, self.baseline)
+        contour = SEMLine(**opt_contour)
+        contour.xc, contour.yc = self.baseline.xycoords_from_distance(dist_contour_to_coastline + dist_coastline_to_baseline)
+        return contour
+        
     def propagate_waves(self, offshore_wave):
 
         nearshore_angle = self.baseline.azimuth_from_normals_degrees()
@@ -397,12 +427,23 @@ class SEMGrid:
     def plot_Q(self):
 
         fig, ax = plt.subplots()
-        plt.plot(self.Q_net()/self.dt, '-k', label=r' $Q_{net}$')
+        Q = self.Q_net()
+        nt = Q.size-1
+        plt.plot(range(1, nt), Q[1:-1]/self.dt, '-k', label=r' $Q_{net}$') # dot not plot boundary cells
         plt.ylabel(r' $Q_{net}$ $(m^3s^{-1})$')
         plt.legend(loc='upper left')
         plt.xlabel('transect number')
 
         ax.twinx()
-        plt.plot(self.Q_potential()/self.dt, '--r', label=r' $Q_{potential}$')
+        Q = self.Q_potential()
+        plt.plot(range(1, nt), Q[1:-1]/self.dt, '--r', label=r' $Q_{potential}$')
         plt.ylabel(r' $Q_{potential}$ $(m^3s^{-1})$')
         plt.legend(loc='upper right')
+
+    def to_sph(self, project_name):
+        self.baseline.to_shape(project_name + 'baseline.shp')
+        self.coastline.to_shape(project_name + 'coastline.shp')
+        self.shoreline.to_shape(project_name + 'shoreline.shp')
+        self.beach_toe.to_shape(project_name + 'beach_toe.shp')
+        
+        

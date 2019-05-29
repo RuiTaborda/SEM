@@ -11,7 +11,7 @@ class Wave:
     H = 2.1
     T = 9.3
     dir = 0
-    h = 1000
+    h = 500
     dir_bottom =[]
     rho = 1025
     
@@ -71,7 +71,8 @@ class Wave:
         return self.E() * self.cg()
     
     def alpha(self):
-        return -(self.dir - self.dir_bottom)
+        a = -(self.dir - self.dir_bottom)
+        return (a + 180) % 360 - 180
     
     def set_dir_bottom(self, angle):
         self.dir_bottom = angle
@@ -83,16 +84,25 @@ class Wave:
         c0 = self.c()
         alpha0 = self.alpha()
         
+        if abs(alpha0) > 90:
+            Ks = 0
+            Kr = 0
+        else:
         #change depth
-        self.h = h
+            self.h = h
         
-        Ks = math.sqrt(cg0 / self.cg())
+            Ks = math.sqrt(cg0 / self.cg())
         
-        alpha = math.degrees(math.asin(math.sin(math.radians(alpha0)) * self.c() / c0))
-        
+            v = math.sin(math.radians(alpha0)) * self.c() / c0;
+            if abs(v) > 1:
+                Kr = 0
+            else:
+                alpha = math.degrees(math.asin(v))
                
-        self.dir = -(alpha - self.dir_bottom)
-        Kr = math.sqrt(math.cos(math.radians(alpha0)) / math.cos(math.radians(alpha)))
+                self.dir = -(alpha - self.dir_bottom)
+            
+                Kr = math.sqrt(math.cos(math.radians(alpha0)) / math.cos(math.radians(alpha)))
+            
         self.H = self.H * Ks * Kr
         
         return Ks, Kr
