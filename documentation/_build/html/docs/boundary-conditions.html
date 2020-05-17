@@ -1,0 +1,175 @@
+
+
+<!doctype html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Boundary conditions &#8212; SEM  documentation</title>
+    <link rel="stylesheet" href="../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Computational grid" href="computational-grid.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="computational-grid.html" title="Computational grid"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SEM  documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Boundary conditions</a><ul>
+<li><a class="reference internal" href="#offshore-waves">Offshore waves</a><ul>
+<li><a class="reference internal" href="#using-era5-based-ocean-wave-hindcast">Using ERA5 based ocean wave hindcast</a><ul>
+<li><a class="reference internal" href="#data-selection-and-downloading">1 - Data selection and downloading</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="computational-grid.html"
+                        title="previous chapter">Computational grid</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/docs/boundary-conditions.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="boundary-conditions">
+<h1>Boundary conditions<a class="headerlink" href="#boundary-conditions" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="offshore-waves">
+<h2>Offshore waves<a class="headerlink" href="#offshore-waves" title="Permalink to this headline">¶</a></h2>
+<p>Offshore wave conditions should be given as a wavetimeseries objet. Data sources include offshore wave buoys and model data. To simulate relative long periods, hindcast data are one of the best options, so the procedure is detailed below.</p>
+<div class="section" id="using-era5-based-ocean-wave-hindcast">
+<h3>Using ERA5 based ocean wave hindcast<a class="headerlink" href="#using-era5-based-ocean-wave-hindcast" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="https://www.ecmwf.int/en/forecasts/datasets/reanalysis-datasets/era5">ERA5</a> is the fifth generation ECMWF (European Centre for Medium-Range Weather Forecasts) atmospheric reanalysis of the global climate and have a horizontal resolution of 0.5 <span class="math notranslate nohighlight">\(^{\circ}\)</span> x 0.5 <span class="math notranslate nohighlight">\(^{\circ}\)</span> for waves.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Prior to download the wave data make sure that the CDS API and xarray package are properly installed.</p>
+<p>See <a class="reference internal" href="ERA5-prerequisites.html"><span class="doc">Prerequisites to download ERA5 data through CDS API</span></a> for details.</p>
+</div>
+<div class="section" id="data-selection-and-downloading">
+<h4>1 - Data selection and downloading<a class="headerlink" href="#data-selection-and-downloading" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><p>The best way to navigate to the available data is to open <a class="reference external" href="https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-single-levels?tab=form">ERA5 download page</a> and in the <em>download tab</em> select the desired data. In the bottom of the same panel click on the <em>Show API request</em> button and copy the code to a python file.</p>
+</div></blockquote>
+<div class="topic">
+<p class="topic-title">Example</p>
+<p>Example of a code for downloading a grib file with wave significant height, mean period and mean direction, for a region offshore mainland Portugal, for all available hours of day 01-April-2020. Data will be download to a file named <em>download.grib</em>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cdsapi</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">cdsapi</span><span class="o">.</span><span class="n">Client</span><span class="p">()</span>
+<span class="n">c</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span>
+   <span class="s1">&#39;reanalysis-era5-single-levels&#39;</span><span class="p">,</span>
+   <span class="p">{</span>
+      <span class="s1">&#39;product_type&#39;</span><span class="p">:</span> <span class="s1">&#39;reanalysis&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;format&#39;</span><span class="p">:</span> <span class="s1">&#39;grib&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;variable&#39;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s1">&#39;mean_wave_direction&#39;</span><span class="p">,</span> <span class="s1">&#39;mean_wave_period&#39;</span><span class="p">,</span> <span class="s1">&#39;significant_height_of_combined_wind_waves_and_swell&#39;</span><span class="p">,</span>
+      <span class="p">],</span>
+      <span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="s1">&#39;2020&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;month&#39;</span><span class="p">:</span> <span class="s1">&#39;04&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;day&#39;</span><span class="p">:</span> <span class="s1">&#39;01&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s1">&#39;00:00&#39;</span><span class="p">,</span> <span class="s1">&#39;01:00&#39;</span><span class="p">,</span> <span class="s1">&#39;02:00&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;03:00&#39;</span><span class="p">,</span> <span class="s1">&#39;04:00&#39;</span><span class="p">,</span> <span class="s1">&#39;05:00&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;06:00&#39;</span><span class="p">,</span> <span class="s1">&#39;07:00&#39;</span><span class="p">,</span> <span class="s1">&#39;08:00&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;09:00&#39;</span><span class="p">,</span> <span class="s1">&#39;10:00&#39;</span><span class="p">,</span> <span class="s1">&#39;11:00&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;12:00&#39;</span><span class="p">,</span> <span class="s1">&#39;13:00&#39;</span><span class="p">,</span> <span class="s1">&#39;14:00&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;15:00&#39;</span><span class="p">,</span> <span class="s1">&#39;16:00&#39;</span><span class="p">,</span> <span class="s1">&#39;17:00&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;18:00&#39;</span><span class="p">,</span> <span class="s1">&#39;19:00&#39;</span><span class="p">,</span> <span class="s1">&#39;20:00&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;21:00&#39;</span><span class="p">,</span> <span class="s1">&#39;22:00&#39;</span><span class="p">,</span> <span class="s1">&#39;23:00&#39;</span><span class="p">,</span>
+      <span class="p">],</span>
+      <span class="s1">&#39;area&#39;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="mi">43</span><span class="p">,</span> <span class="o">-</span><span class="mi">13</span><span class="p">,</span> <span class="mi">36</span><span class="p">,</span>
+            <span class="o">-</span><span class="mi">7</span><span class="p">,</span>
+      <span class="p">],</span>
+   <span class="p">},</span>
+   <span class="s1">&#39;download.grib&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Output on pyton console</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="m">2020</span>-05-15 <span class="m">19</span>:26:36,562 INFO Welcome to the CDS
+<span class="m">2020</span>-05-15 <span class="m">19</span>:26:36,567 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/reanalysis-era5-single-levels
+<span class="m">2020</span>-05-15 <span class="m">19</span>:26:39,209 INFO Request is queued
+<span class="m">2020</span>-05-15 <span class="m">19</span>:26:44,134 INFO Request is running
+<span class="m">2020</span>-05-15 <span class="m">19</span>:26:52,695 INFO Request is completed
+<span class="m">2020</span>-05-15 <span class="m">19</span>:26:52,697 INFO Downloading http://136.156.133.25/cache-compute-0008/cache/data5/adaptor.mars.internal-1589567202.6668167-11772-35-ea112760-394c-4211-a63e-bdfd778e233c.grib to download.grib <span class="o">(</span><span class="m">33</span>.8K<span class="o">)</span>
+<span class="m">2020</span>-05-15 <span class="m">19</span>:26:52,876 INFO Download rate <span class="m">190</span>.7K/s
+</pre></div>
+</div>
+</div>
+<p>2  - Loading and converting the data to a wavetimeseries</p>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="computational-grid.html" title="Computational grid"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SEM  documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Disepla.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
+    </div>
+  </body>
+</html>
