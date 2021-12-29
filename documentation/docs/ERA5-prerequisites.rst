@@ -33,6 +33,6 @@ Prerequisites to download ERA5 data through CDS API
     .. note::
         in non english systems the folder name can be displayed in a diferent way (see figure)
 
-        .. image:: ../_static/images/cdapirc-folder.png
+        .. image:: images/cdapirc-folder.png
         
     
