@@ -92,13 +92,11 @@ Using ERA5 based ocean wave hindcast
 
    .. code-block:: bash
 
-      2020-05-15 19:26:36,562 INFO Welcome to the CDS
-      2020-05-15 19:26:36,567 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/reanalysis-era5-single-levels
-      2020-05-15 19:26:39,209 INFO Request is queued
-      2020-05-15 19:26:44,134 INFO Request is running
-      2020-05-15 19:26:52,695 INFO Request is completed
-      2020-05-15 19:26:52,697 INFO Downloading http://136.156.133.25/cache-compute-0008/cache/data5/adaptor.mars.internal-1589567202.6668167-11772-35-ea112760-394c-4211-a63e-bdfd778e233c.grib to download.grib (33.8K)
-      2020-05-15 19:26:52,876 INFO Download rate 190.7K/s
+      2021-12-29 16:57:48,956 INFO Welcome to the CDS
+      2021-12-29 16:57:48,961 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/reanalysis-era5-single-levels
+      2021-12-29 16:57:49,093 INFO Request is completed
+      2021-12-29 16:57:49,095 INFO Downloading https://download-0012.copernicus-climate.eu/cache-compute-0012/cache/data9/adaptor.mars.internal-1640794916.0940006-824-14-ff457bf6-0e49-4e25-9a1f-49c8455d1676.nc to download.nc (5.5M)
+      2021-12-29 16:57:51,337 INFO Download rate 2.5M/s   
 
 2  - Loading and converting the data to a wavetimeseries
 
