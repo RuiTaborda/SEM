@@ -18,7 +18,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'SEM'
-copyright = '2020, Disepla'
+copyright = '2022, Disepla'
 author = 'Rui Taborda'
 
 

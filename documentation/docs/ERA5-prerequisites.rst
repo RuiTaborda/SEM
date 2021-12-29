@@ -18,7 +18,17 @@ Prerequisites to download ERA5 data through CDS API
 
     a.	Log in CDS (https://cds.climate.copernicus.eu/user/login)
 
-    b.	 Go to https://ads.atmosphere.copernicus.eu/api-how-to and create a file “.cdsapirc” using the two lines of code displayed in the webpage. The file should be located in C:/Users/username/ for example in “C:/Users/rui”.
+    b.	 Go to https://cds.climate.copernicus.eu/api-how-to and create a file “.cdsapirc” using the two lines of code displayed in the page. 
+    The file structure should be similar to the one below. 
+
+    .. code-block:: bash
+
+        url: https://cds.climate.copernicus.eu/api/v2
+        key: xxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+
+    c. The file should be located in C:/Users/username/ for example in “C:/Users/rui”.
+
+
 
     .. note::
         in non english systems the folder name can be displayed in a diferent way (see figure)
